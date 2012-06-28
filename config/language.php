@@ -35,12 +35,37 @@ $config['supported_languages'] = array(
   | Default Language
   |--------------------------------------------------------------------------
   |
-  | If no language is specified, which one to use? Must be in the array above
+  | If no language is specified, which one to use? Must be in the array above.
   |
   |    en
   |
  */
 $config['default_language'] = 'en';
+
+/*
+  |--------------------------------------------------------------------------
+  | Detect Browser Language
+  |--------------------------------------------------------------------------
+  |
+  | If enabled detecting browser language and disable default language
+  |
+  |    FALSE
+  |
+ */
+$config['detect_language'] = TRUE;
+
+/*
+  |--------------------------------------------------------------------------
+  | Default URI
+  |--------------------------------------------------------------------------
+  |
+  | Where to redirect if no language in URI.
+  | Example if default_uri 'welcome' => /en/weclome
+  |
+  |    welcome
+  |
+ */
+$config['default_uri'] = '/';
 
 /*
   |--------------------------------------------------------------------------

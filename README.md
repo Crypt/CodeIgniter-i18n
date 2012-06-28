@@ -85,6 +85,15 @@ This should appear like:
 
 	Welcome, John Doe.
 
+Or like this:
+
+	<?php $username = "John Doe";
+	echo lang('welcome', 'username', $username)?>
+
+This should appear like:
+
+	<label for="username">Welcome, John Doe.</label>
+
 Get the current language:
 
 	<?php echo get_lang();?>

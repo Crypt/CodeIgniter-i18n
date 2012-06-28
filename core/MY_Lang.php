@@ -57,6 +57,12 @@ class MY_Lang extends MX_Lang {
 	private $default_uri = '/';
 	
 	/**
+	 * Detect browser langueage
+	 * @var boolean 
+	 */
+	private $detect_language = TRUE;
+
+	/**
 	 * Current language code
 	 * @var string 
 	 */
@@ -65,8 +71,8 @@ class MY_Lang extends MX_Lang {
 	/**
 	 * __construct
 	 * 
-	 * @global type $CFG
-	 * @global type $URI
+	 * @global mixed $CFG
+	 * @global mixed $URI
 	 * 
 	 * @return void
 	 */
@@ -79,23 +85,25 @@ class MY_Lang extends MX_Lang {
 		
 		require_once APPPATH . "config/language.php";
 		
-		$this->supported_languages = $config['supported_languages'];
-		$this->current_language = $config['default_language'];
-		$this->special_uris = $config['special_uris'];
+		$this->supported_languages = array_key_exists('supported_languages', $config) && !empty($config['supported_languages']) ? $config['supported_languages'] : $this->supported_languages;
+		$this->current_language = array_key_exists('default_language', $config) && !empty($config['default_language']) ? $config['default_language'] : $this->current_language;
+		$this->detect_language = array_key_exists('detect_language', $config) ? $config['detect_language'] : $this->detect_language;
+		$this->default_uri = array_key_exists('default_uri', $config) ? $config['default_uri'] : $this->default_uri;
+		$this->special_uris = array_key_exists('special_uris', $config) ? $config['special_uris'] : $this->special_uris;
 
 		$this->uri = $URI->uri_string();
 
 		$uri_segment = $this->get_uri_lang($this->uri);
 		$this->lang_code = $uri_segment['lang'];
 
-		$url_ok = false;
+		$url_ok = FALSE;
 		if((!empty($this->lang_code)) && (array_key_exists($this->lang_code, $this->supported_languages)))
 		{
 			$language = $this->supported_languages[$this->lang_code]['folder'];
 			
 			$CFG->set_item('language', $language);
 			$this->current_language = $this->lang_code;
-			$url_ok = true;
+			$url_ok = TRUE;
 		}
 
 		if((!$url_ok) && (!$this->is_special($uri_segment['parts'][0]))) // special URI -> no redirect
@@ -118,8 +126,7 @@ class MY_Lang extends MX_Lang {
 	 * 
 	 * Return 'en' if language in CI config is 'english'
 	 * 
-	 * @global type $CFG
-	 * @return array 
+	 * @return string 
 	 */
 	function lang()
 	{
@@ -129,7 +136,7 @@ class MY_Lang extends MX_Lang {
 	/**
 	 * Is this url special ?
 	 * 
-	 * @param type $lang_code
+	 * @param string $lang_code
 	 * @return boolean 
 	 */
 	function is_special($lang_code)
@@ -143,7 +150,7 @@ class MY_Lang extends MX_Lang {
 	/**
 	 * Switch to another language
 	 * 
-	 * @param type $lang
+	 * @param string $lang
 	 * @return string 
 	 */
 	function switch_uri($lang)
@@ -170,13 +177,14 @@ class MY_Lang extends MX_Lang {
 	 * Check if the language exists.
 	 * When true returns an array with lang abbreviation + rest
 	 * 
-	 * @param type $uri
+	 * @param string $uri
 	 * @return mixed boolean / array 
 	 */
 	function get_uri_lang($uri = '')
-	{
+	{		
 		if(!empty($uri))
 		{
+			$uri_segment = array();
 			$uri = ($uri[0] == '/') ? substr($uri, 1) : $uri;
 
 			$uri_expl = explode('/', $uri, 2);
@@ -200,9 +208,16 @@ class MY_Lang extends MX_Lang {
 	 */
 	function default_lang()
 	{
-		$browser_lang = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? strtok(strip_tags($_SERVER['HTTP_ACCEPT_LANGUAGE']), ',') : '';
-		$browser_lang = substr($browser_lang, 0, 2);
-		return (array_key_exists($browser_lang, $this->supported_languages)) ? $browser_lang : $this->current_language;
+		if($this->detect_language === TRUE)
+		{
+			$browser_lang = !empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? strtok(strip_tags($_SERVER['HTTP_ACCEPT_LANGUAGE']), ',') : '';
+			$browser_lang = substr($browser_lang, 0, 2);
+			return (array_key_exists($browser_lang, $this->supported_languages)) ? $browser_lang : $this->current_language;
+		}
+		else
+		{
+			return $this->current_language;
+		}
 	}
 	
 	/**

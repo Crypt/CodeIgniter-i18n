@@ -14,6 +14,11 @@ require_once APPPATH . "libraries/MX/Config.php";
 
 class MY_Config extends MX_Config {
 
+	/**
+	 * Return localized site url
+	 * @param string $uri
+	 * @return string 
+	 */
 	function site_url($uri = '')
 	{
 		if(is_array($uri))
